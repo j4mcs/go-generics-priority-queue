@@ -82,54 +82,53 @@ func down(type T)(h Interface(T), i0, n int) bool {
 
 ///PQ
 
-type Item interface {
+type Itemizer interface {
 	Priority() int
 }
 
-type PriorityQueue []Item
+type PriorityQueue(type T Itemizer) []T
 
-func (pq *PriorityQueue) Init() {
-	Init(Item)(pq)
+func (pq *PriorityQueue(T)) Init() {
+	Init(T)(pq)
 }
 
-func (pq *PriorityQueue) PushItem(x Item) {
-	Push(Item)(pq, x)
+func (pq *PriorityQueue(T)) PushItem(x T) {
+	Push(T)(pq, x)
 }
 
-func (pq *PriorityQueue) PopItem() Item {
-		return Pop(Item)(pq)
+func (pq *PriorityQueue(T)) PopItem() T {
+		return Pop(T)(pq)
 }
 
-func (pq PriorityQueue) Len() int { return len(pq) }
+func (pq PriorityQueue(T)) Len() int { return len(pq) }
 
-func (pq PriorityQueue) Less(i, j int) bool {
+func (pq PriorityQueue(T)) Less(i, j int) bool {
 	return pq[i].Priority() < pq[j].Priority()
 }
 
-func (pq PriorityQueue) Swap(i, j int) {
+func (pq PriorityQueue(T)) Swap(i, j int) {
 	pq[i], pq[j] = pq[j], pq[i]
 }
 
-func (pq *PriorityQueue) Push(x Item) {
+func (pq *PriorityQueue(T)) Push(x T) {
 	item := x
 	*pq = append(*pq, item)
 }
 
-func (pq *PriorityQueue) Pop() Item {
+func (pq *PriorityQueue(T)) Pop() T {
 	old := *pq
 	n := len(old)
 	item := old[n-1]
-	old[n-1] = nil
 	*pq = old[0 : n-1]
 	return item
 }
 
-type ItemImplementation struct {
+type Fruit struct {
 	Name string
 	Val int
 }
 
-func (item *ItemImplementation) Priority() int {
+func(item Fruit) Priority() int {
 	return item.Val
 }
 
@@ -138,10 +137,10 @@ func main() {
 		"banana": 3, "apple": 2, "pear": 4,
 	}
 
-	pq := make(PriorityQueue, len(items))
+	pq := make(PriorityQueue(Fruit), len(items))
 	i := 0
 	for value, priority := range items {
-		pq[i] = &ItemImplementation{
+		pq[i] = Fruit{
 			Name:    value,
 			Val: priority,
 		}
@@ -149,15 +148,14 @@ func main() {
 	}
 	pq.Init()
 
-	item := &ItemImplementation{
+	item := Fruit{
 		Name:    "orange",
 		Val: 1,
 	}
 	pq.PushItem(item)
 
 	for pq.Len() > 0 {
-		item := pq.PopItem().(*ItemImplementation)
+		item := pq.PopItem()
 		fmt.Printf("%.2d:%s ", item.Val, item.Name)
 	}
 }
-
