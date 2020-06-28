@@ -88,6 +88,18 @@ type Item interface {
 
 type PriorityQueue []Item
 
+func (pq *PriorityQueue) Init() {
+	Init(Item)(pq)
+}
+
+func (pq *PriorityQueue) PushItem(x Item) {
+	Push(Item)(pq, x)
+}
+
+func (pq *PriorityQueue) PopItem() Item {
+		return Pop(Item)(pq)
+}
+
 func (pq PriorityQueue) Len() int { return len(pq) }
 
 func (pq PriorityQueue) Less(i, j int) bool {
@@ -135,16 +147,16 @@ func main() {
 		}
 		i++
 	}
-	Init(Item)(&pq)
+	pq.Init()
 
 	item := &ItemImplementation{
 		Name:    "orange",
 		Val: 1,
 	}
-	Push(Item)(&pq, item)
+	pq.PushItem(item)
 
 	for pq.Len() > 0 {
-		item := Pop(Item)(&pq).(*ItemImplementation)
+		item := pq.PopItem().(*ItemImplementation)
 		fmt.Printf("%.2d:%s ", item.Val, item.Name)
 	}
 }
