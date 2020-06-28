@@ -82,38 +82,43 @@ func down(type T)(h Interface(T), i0, n int) bool {
 
 ///PQ
 
-// An Item is something we manage in a priority queue.
-type Item struct {
-	value    string // The value of the item; arbitrary.
-	priority int    // The priority of the item in the queue.
+type Item interface {
+	Priority() int
 }
 
-// A PriorityQueue implements heap.Interface and holds Items.
-type PriorityQueue []*Item
+type PriorityQueue []Item
 
 func (pq PriorityQueue) Len() int { return len(pq) }
 
 func (pq PriorityQueue) Less(i, j int) bool {
-	// We want Pop to give us the highest, not lowest, priority so we use greater than here.
-	return pq[i].priority > pq[j].priority
+	return pq[i].Priority() < pq[j].Priority()
 }
 
 func (pq PriorityQueue) Swap(i, j int) {
 	pq[i], pq[j] = pq[j], pq[i]
 }
 
-func (pq *PriorityQueue) Push(x *Item) {
+func (pq *PriorityQueue) Push(x Item) {
 	item := x
 	*pq = append(*pq, item)
 }
 
-func (pq *PriorityQueue) Pop() *Item {
+func (pq *PriorityQueue) Pop() Item {
 	old := *pq
 	n := len(old)
 	item := old[n-1]
 	old[n-1] = nil
 	*pq = old[0 : n-1]
 	return item
+}
+
+type ItemImplementation struct {
+	Name string
+	Val int
+}
+
+func (item *ItemImplementation) Priority() int {
+	return item.Val
 }
 
 func main() {
@@ -124,22 +129,22 @@ func main() {
 	pq := make(PriorityQueue, len(items))
 	i := 0
 	for value, priority := range items {
-		pq[i] = &Item{
-			value:    value,
-			priority: priority,
+		pq[i] = &ItemImplementation{
+			Name:    value,
+			Val: priority,
 		}
 		i++
 	}
-	Init(*Item)(&pq)
+	Init(Item)(&pq)
 
-	item := &Item{
+	item := &ItemImplementation{
 		value:    "orange",
 		priority: 1,
 	}
-	Push(*Item)(&pq, item)
+	Push(Item)(&pq, item)
 
 	for pq.Len() > 0 {
-		item := Pop(*Item)(&pq)
+		item := Pop(Item)(&pq).(*ItemImplementation)
 		fmt.Printf("%.2d:%s ", item.priority, item.value)
 	}
 }
